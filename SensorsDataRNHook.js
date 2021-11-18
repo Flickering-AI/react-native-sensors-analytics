@@ -1323,11 +1323,11 @@ const sensorsDataHookTouchableTypescript = function () {
       return;
     }
     // 获取 hook 的代码插入的位置
-    var scriptStr = 'onPress?: (event: GestureResponderEvent) => void;';
+    var scriptStr = 'onPress?: ((event: GestureResponderEvent) => void) | undefined;';
     var hookIndex = fileContent.lastIndexOf(scriptStr);
     // 判断文件是否异常，不存在该代码，导致无法 hook 点击事件
     if (hookIndex == -1) {
-      throw "Can't not find code \"onPress?: (event: GestureResponderEvent) => void;\n";
+      throw "Can't not find code \"onPress?: ((event: GestureResponderEvent) => void) | undefined;\n";
     }
     // 插入 hook 代码
     var hookedContent =  `${fileContent.substring(
