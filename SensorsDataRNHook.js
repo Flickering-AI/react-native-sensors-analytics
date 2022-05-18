@@ -19,7 +19,7 @@ dir + '/react-navigation-redux-helpers/src/create-redux-container.js'];
 var reactNavigationReduxMiddlePath = dir + '/react-navigation-redux-helpers/src/middleware.js';
 var RNClickFilePath = dir + '/react-native/Libraries/Components/Touchable/Touchable.js';
 var RNClickPressabilityFilePath = dir + '/react-native/Libraries/Pressability/Pressability.js';
-var RNClickableFiles = [dir + '/react-native/Libraries/Renderer/src/renderers/native/ReactNativeFiber.js',
+var   RNClickableFiles = [dir + '/react-native/Libraries/Renderer/src/renderers/native/ReactNativeFiber.js',
 dir + '/react-native/Libraries/Renderer/src/renderers/native/ReactNativeFiber-dev.js',
 dir + '/react-native/Libraries/Renderer/src/renderers/native/ReactNativeFiber-prod.js',
 dir + '/react-native/Libraries/Renderer/src/renderers/native/ReactNativeFiber-profiling.js',
@@ -64,7 +64,94 @@ var sensorsdataClickHookPressabilityCode = " var tag = event.currentTarget && ev
                                             +"    try {\n"
                                             +"      var ReactNative = require('react-native');\n"
                                             +"      var dataModule = ReactNative.NativeModules.RNSensorsDataModule;\n"
-                                            +"      dataModule && dataModule.trackViewClick && dataModule.trackViewClick(thatThis);\n"
+                                            +`var saElement = event._targetInst;
+      // if(typeof internalInstanceHandle !== 'undefined'){
+      //   saElement = internalInstanceHandle;
+      // }else if(typeof workInProgress !== 'undefined'){
+      //   saElement = workInProgress;
+      // }else if(typeof thatThis._currentElement !== 'undefined'){
+      //   saElement = thatThis._currentElement;
+      // }
+      var eachProgress = function (workInProgress){
+        if(workInProgress == null){
+          return;
+        }
+        var props;
+        if(workInProgress.memoizedProps){
+          props = workInProgress.memoizedProps;
+        }else if(workInProgress.props){
+          props = workInProgress.props;
+        }
+        if(props && props.sensorsdataparams){
+          return props;
+        }else {
+          if(!props ||
+              !workInProgress.type ||
+              workInProgress.type.displayName === 'TouchableOpacity' ||
+              workInProgress.type.displayName === 'TouchableHighlight' ||
+              workInProgress.type.displayName === 'TouchableWithoutFeedback'||
+              workInProgress.type.displayName === 'TouchableNativeFeedback'||
+              workInProgress.type.displayName === 'Pressable'||
+              workInProgress.type.name === 'TouchableOpacity' ||
+              workInProgress.type.name === 'TouchableHighlight' ||
+              workInProgress.type.name === 'TouchableNativeFeedback'||
+              workInProgress.type.name === 'TouchableWithoutFeedback'||
+              workInProgress.type.displayName === undefined||
+              workInProgress.type.name === undefined ||
+              !props.onPress){
+            if(workInProgress.return){
+              return eachProgress(workInProgress.return);
+            }else{
+              if(workInProgress._owner && workInProgress._owner._currentElement){
+                return eachProgress(workInProgress._owner._currentElement);
+              }else{
+                return eachProgress(workInProgress._owner);
+              }
+            }
+          }
+        }
+      };
+      var elementProps;
+      if(saElement && saElement.memoizedProps){
+        elementProps = saElement.memoizedProps;
+      }else if(saElement && saElement.props){
+        elementProps = saElement.props;
+      }
+      if(elementProps){
+        // iOS 兼容 SegmentedControl 逻辑
+        var isSegmentedControl = (saElement &&
+            (saElement.type === 'RNCSegmentedControl' ||
+                saElement.type === 'RCTSegmentedControl' ||
+                saElement.type.name === 'RNCSegmentedControl' ||
+                saElement.type.name === 'RCTSegmentedControl' ||
+                saElement.type.displayName === 'RNCSegmentedControl' ||
+                saElement.type.displayName === 'RCTSegmentedControl'));
+        if(elementProps.onStartShouldSetResponder || isSegmentedControl) {
+          // var saProps = eachProgress(saElement);
+          if(dataModule && dataModule.saveRootViewProperties) {
+            // var saRootTag;
+            // if(typeof nativeTopRootTag !== 'undefined') {
+            //   saRootTag = nativeTopRootTag;
+            // } else if(typeof rootContainerInstance !== 'undefined') {
+            //   saRootTag = rootContainerInstance;
+            // } else if(typeof renderExpirationTime !== 'undefined') {
+            //   saRootTag = renderExpirationTime;
+            // } else if(typeof renderLanes !== 'undefined') {
+            //   saRootTag = renderLanes;
+            // }
+            // if (saRootTag && (typeof saRootTag === 'number')) {
+            //   dataModule.saveRootViewProperties(thatThis, true , saProps, saRootTag);
+            //   return;
+            // }
+          }
+          var props = eachProgress(saElement);
+          const needTrackEvent = props && props.sensorsdataparams && props.sensorsdataparams['$element_id'];
+          if (needTrackEvent) {
+            var sensorsdataparams = global.trackEventMapFunction(props);
+            dataModule && dataModule.saveViewProperties && dataModule.saveViewProperties(thatThis, true, sensorsdataparams).then((isSaved) => dataModule && dataModule.trackViewClick && dataModule.trackViewClick(thatThis));
+          }
+        }
+      }`
                                             +"    }catch (error){\n"
                                             +"      throw new Error('SensorsData RN Hook Code 调用异常: ' + error);}}}\n"
                                             +")(tag); /* SENSORSDATA HOOK */ ";
@@ -1235,7 +1322,7 @@ sensorsdataResetNavigationRN = function () {
 resetAllSensorsdataHookRN = function () {
   sensorsdataResetRN(RNClickFilePath);
   sensorsdataResetNavigationRN();
-  sensorsdataHookClickableRN(true);
+  // sensorsdataHookClickableRN(true);
   // 2 期
   sensorsdataHookSliderRN(true);
   sensorsdataHookSwitchRN(true);
@@ -1259,7 +1346,7 @@ allSensorsdataHookRN = function () {
       console.log('ignore click');
     } else {
       sensorsdataHookClickRN(RNClickFilePath);
-      sensorsdataHookClickableRN();
+      // sensorsdataHookClickableRN();
       // 2 期
       sensorsdataHookSliderRN();
       sensorsdataHookSwitchRN();
@@ -1270,7 +1357,7 @@ allSensorsdataHookRN = function () {
     }
   } else {
     sensorsdataHookClickRN(RNClickFilePath);
-    sensorsdataHookClickableRN();
+    // sensorsdataHookClickableRN();
     // 2 期
     sensorsdataHookSliderRN();
     sensorsdataHookSwitchRN();
@@ -1285,11 +1372,49 @@ allSensorsdataHookRN = function () {
   sensorsdataHookNavigationReduxCreate();
   sensorsdataHookNavigationReduxMiddle(reactNavigationReduxMiddlePath);
 };
+// typescript   by xuanping
+var reactTouchableTypescriptPath = dir +'/@types/react-native/index.d.ts';
+const sensorsDataHookTouchableTypescriptCode = "sensorsdataparams?: null | { '$element_id': number | string } | { [index: string]: number | string }";
+const sensorsDataHookTouchableTypescript = function () {
+  if (fs.existsSync(reactTouchableTypescriptPath)) {
+    // 读取文件内容
+    var fileContent = fs.readFileSync(reactTouchableTypescriptPath, 'utf8');
+    // 已经 hook 过了，不需要再次 hook
+    if (fileContent.indexOf('SENSORSDATA HOOK') > -1) {
+      return;
+    }
+    // 获取 hook 的代码插入的位置
+    var scriptStr = 'onPress?: ((event: GestureResponderEvent) => void) | undefined;';
+    var hookIndex = fileContent.lastIndexOf(scriptStr);
+    // 判断文件是否异常，不存在该代码，导致无法 hook 点击事件
+    if (hookIndex == -1) {
+      throw "Can't not find code \"onPress?: ((event: GestureResponderEvent) => void) | undefined;\n";
+    }
+    // 插入 hook 代码
+    var hookedContent =  `${fileContent.substring(
+        0,
+        hookIndex + scriptStr.length
+    )}\n\n    ${sensorsDataHookTouchableTypescriptCode} /* SENSORSDATA HOOK */${fileContent.substring(
+        hookIndex + scriptStr.length
+    )}`;
+    // 备份 index.d.ts 源文件
+    fs.renameSync(
+        reactTouchableTypescriptPath,
+        `${reactTouchableTypescriptPath}_sensorsdata_backup`
+    );
+    // 重写 middleware.js 文件
+    fs.writeFileSync(reactTouchableTypescriptPath, hookedContent, 'utf8');
+    console.log(
+        `found and modify index.d.ts: ${reactTouchableTypescriptPath}`
+    );
+  }
+};
 // 命令行
 switch (process.argv[2]) {
   case '-run':
     resetAllSensorsdataHookRN();
     allSensorsdataHookRN();
+    sensorsDataHookTouchableTypescript();
     break;
   case '-reset':
     resetAllSensorsdataHookRN();

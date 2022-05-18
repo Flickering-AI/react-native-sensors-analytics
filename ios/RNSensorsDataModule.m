@@ -65,9 +65,10 @@ RCT_EXPORT_METHOD(trackViewScreen:(NSDictionary *)params) {
  * 兼容旧版本 JSBundle 使用
  *
  */
-RCT_EXPORT_METHOD(saveViewProperties:(NSInteger)reactTag clickable:(BOOL)clickable paramters:(NSDictionary *)paramters) {
+RCT_EXPORT_METHOD(saveViewProperties:(NSInteger)reactTag clickable:(BOOL)clickable paramters:(NSDictionary *)paramters resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     @try {
         [[SAReactNativeManager sharedInstance] prepareView:@(reactTag) clickable:clickable paramters:paramters];
+        resolve(@YES);
     } @catch (NSException *exception) {
         NSLog(@"[RNSensorsAnalytics] error:%@",exception);
     }
