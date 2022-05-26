@@ -17,8 +17,8 @@
 
 package com.sensorsdata.analytics;
 
-
 import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -34,7 +34,6 @@ import com.sensorsdata.analytics.utils.RNViewUtils;
 import com.sensorsdata.analytics.utils.VersionUtils;
 
 import org.json.JSONObject;
-
 
 /**
  * 参数类型在@ReactMethod注明的方法中，会被直接映射到它们对应的JavaScript类型
@@ -104,8 +103,9 @@ public class RNSensorsDataModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void saveViewProperties(int viewId, boolean clickable, ReadableMap viewProperties) {
+    public void saveViewProperties(int viewId, boolean clickable, ReadableMap viewProperties, Promise promise) {
         RNAgent.saveViewProperties(viewId, clickable, viewProperties);
+        promise.resolve(true);
     }
 
     @ReactMethod
