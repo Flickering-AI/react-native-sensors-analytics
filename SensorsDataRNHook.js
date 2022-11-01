@@ -148,7 +148,7 @@ var sensorsdataClickHookPressabilityCode = " var tag = event.currentTarget && ev
           const needTrackEvent = props && props.sensorsdataparams && props.sensorsdataparams['$element_id'];
           if (needTrackEvent) {
             var sensorsdataparams = global.trackEventMapFunction(props);
-            dataModule && dataModule.saveViewProperties && dataModule.saveViewProperties(thatThis, true, sensorsdataparams).then((isSaved) => dataModule && dataModule.trackViewClick && dataModule.trackViewClick(thatThis));
+            ReactNative.NativeModules.RNSensorsAnalyticsModule.track('$AppClick', sensorsdataparams);
           }
         }
       }`
