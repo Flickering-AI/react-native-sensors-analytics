@@ -40,5 +40,5 @@ dependencies {
     compileOnly 'com.facebook.react:react-native:+'
 
     //添加 Sensors Analytics SDK 依赖
-    api 'com.sensorsdata.analytics.android:SensorsAnalyticsSDK:6.5.1'
+    api 'com.sensorsdata.analytics.android:SensorsAnalyticsSDK:6.6.6'
 }
